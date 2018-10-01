@@ -69,12 +69,8 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error parsing port number: %v\n\n", err)
 			usage(1)
 		}
-		// Without this the compiler complains about unused variables.
-		// We'll start using them soon:
-		_, _, _ = vpnName, vlanNo, portNo
-
-		openVpn("--help").Run()
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		fmt.Print(createCmd(vpnName, uint16(vlanNo), uint16(portNo)))
+		fmt.Fprintln(os.Stderr, "TODO: actually set up the VPN.")
 	case "start":
 		checkNumArgs(1)
 		checkVpnName(os.Args[2])
