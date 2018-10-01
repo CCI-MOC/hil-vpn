@@ -73,8 +73,7 @@ func main() {
 		// We'll start using them soon:
 		_, _, _ = vpnName, vlanNo, portNo
 
-		findOpenVpn()
-
+		openVpn("--help").Run()
 		fmt.Fprintln(os.Stderr, "Unimplemented")
 	case "start":
 		checkNumArgs(1)

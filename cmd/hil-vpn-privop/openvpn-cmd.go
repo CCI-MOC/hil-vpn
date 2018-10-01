@@ -51,3 +51,10 @@ func findOpenVpn() string {
 	os.Exit(1)
 	panic("unreachable")
 }
+
+// Return a command which will execute `openvpn` with the given arguments.
+// Calls 'findOpenVpn' to find the executable.
+func openVpn(arg ...string) *exec.Cmd {
+	path := findOpenVpn()
+	return exec.Command(path, arg...)
+}
