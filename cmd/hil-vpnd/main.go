@@ -1,5 +1,10 @@
 package main
 
+import (
+	"net/http"
+)
+
 func main() {
-	println("TODO")
+	http.Handle("/", makeHandler())
+	panic(http.ListenAndServe(":8080", nil))
 }
