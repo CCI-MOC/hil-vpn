@@ -35,7 +35,7 @@ func safeFindCmd(cmdName string) string {
 	}
 	path, err = filepath.Abs(path)
 	if err != nil {
-		fmt.Fprintln(
+		fmt.Fprintf(
 			os.Stderr,
 			"Fatal: error computing path to %q executable: %v\n",
 			cmdName,
