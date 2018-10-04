@@ -43,9 +43,9 @@ func findOpenVpn() string {
 			return path
 		}
 	}
-	fmt.Fprintln(
+	fmt.Fprintf(
 		os.Stderr,
-		"Fatal error: openvpn executable is in a non-standard location: %q",
+		"Fatal error: openvpn executable is in a non-standard location: %q\n",
 		path,
 	)
 	os.Exit(1)
