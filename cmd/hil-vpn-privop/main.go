@@ -52,6 +52,10 @@ func checkVpnName(name string) string {
 }
 
 func main() {
+	// Make sure only one hil-vpn-privop command is running at a time:
+	lockFile()
+	defer unlockFile()
+
 	if len(os.Args) < 2 {
 		usage(1)
 	}
