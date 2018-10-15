@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	http.Handle("/", makeHandler())
+	http.Handle("/", makeHandler(PrivOpsCmd{}))
 	panic(http.ListenAndServe(":8080", nil))
 }
