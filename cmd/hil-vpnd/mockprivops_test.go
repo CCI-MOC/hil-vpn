@@ -106,8 +106,12 @@ func (ops *MockPrivOps) StopVPN(name string) error {
 func (ops *MockPrivOps) DeleteVPN(name string) error {
 	ops.startOp()
 	defer ops.endOp()
-	if _, ok := ops.vpns[name]; !ok {
+	vpn, ok := ops.vpns[name]
+	if !ok {
 		panic(fmt.Sprintf("Tried to delete non-existent vpn %q", name))
+	}
+	if vpn.running {
+		panic(fmt.Sprintf("Tried to delete a running vpn (%q)", name))
 	}
 	delete(ops.vpns, name)
 	return nil
