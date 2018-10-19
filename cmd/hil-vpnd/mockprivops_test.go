@@ -13,7 +13,7 @@ type MockPrivOps struct {
 	vpns map[string]*vpnInfo
 }
 
-// Create a new MockPrivOps, with no existant vpns.
+// Create a new MockPrivOps, with no existent vpns.
 func NewMockPrivOps() *MockPrivOps {
 	return &MockPrivOps{
 		vpns: make(map[string]*vpnInfo),
@@ -46,7 +46,7 @@ func genMockKey() (string, error) {
 	return fmt.Sprintf("%x", key), nil
 }
 
-// Get a vpnInfo for the named vpn, panicing if it doesn't exist.
+// Get a vpnInfo for the named vpn, panicking if it doesn't exist.
 func (ops *MockPrivOps) mustGetVpn(name string) *vpnInfo {
 	vpn, ok := ops.vpns[name]
 	if !ok {
