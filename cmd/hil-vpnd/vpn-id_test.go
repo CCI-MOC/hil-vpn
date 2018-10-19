@@ -3,6 +3,14 @@ package main
 import (
 	"testing"
 	"testing/quick"
+
+	"encoding"
+)
+
+var (
+	// Make sure *VpnId implements these interfaces:
+	_ encoding.TextMarshaler   = &VpnId{}
+	_ encoding.TextUnmarshaler = &VpnId{}
 )
 
 func TestVpnIdMarshalUnmarshal(t *testing.T) {
