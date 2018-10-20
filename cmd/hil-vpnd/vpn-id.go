@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -43,13 +44,10 @@ func (id *VpnId) UnmarshalText(text []byte) error {
 	id.Port = uint16(portNo)
 
 	unique := make([]byte, len(id.Unique))
-	n, err := fmt.Sscanf(string(ret[2]), "%x", &unique)
+	_, err = hex.Decode(unique, ret[2])
 	if err != nil {
 		dieBug("Error scanning vpn id: " + err.Error())
 	}
 	copy(id.Unique[:], unique)
-	if n != 1 {
-		dieBug("Error scanning vpn id: could not parse unique id.")
-	}
 	return nil
 }
