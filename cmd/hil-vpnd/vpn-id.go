@@ -12,9 +12,11 @@ var vpnIdRegexp = regexp.MustCompile("^([0-9]+)-([a-fA-F0-9]+)")
 // A VpnId is the name of a vpn as hil-vpnd understands them; we encode
 // these as textual names when passing them to the privop command.
 type VpnId struct {
-	Unique [128 / 8]byte
+	Unique UniqueId
 	Port   uint16
 }
+
+type UniqueId [128 / 8]byte
 
 // dieBug panics with a message reporting that there is a bug in the software;
 // this is used for things which should be impossible.
