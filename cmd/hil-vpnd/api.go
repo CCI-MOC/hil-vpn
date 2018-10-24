@@ -21,7 +21,7 @@ type CreateVpnResp struct {
 }
 
 // Create an http.Handler implementing the REST API from the spec.
-func makeHandler() http.Handler {
+func makeHandler(privops PrivOps) http.Handler {
 	r := mux.NewRouter()
 
 	r.Methods("POST").Path("/vpns/new").
