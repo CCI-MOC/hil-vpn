@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"sync"
+
+	"github.com/CCI-MOC/hil-vpn/internal/validate"
 )
 
 // A mock implementation of PrivOps, for testing. Use NewMockPrivOps to
@@ -58,6 +60,9 @@ func (ops *MockPrivOps) mustGetVpn(name string) *vpnInfo {
 //// Implementations of the methods needed to implement the PrivOps interface.
 
 func (ops *MockPrivOps) CreateVPN(name string, vlanNo uint16, portNo uint16) (string, error) {
+	if err := validate.CheckVpnName(name); err != nil {
+		panic(err)
+	}
 	ops.startOp()
 	defer ops.endOp()
 	if _, ok := ops.vpns[name]; ok {
