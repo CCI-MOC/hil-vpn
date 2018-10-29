@@ -28,6 +28,12 @@ type VpnStates struct {
 	FreePorts []uint16
 }
 
+// NOTE: VpnStates has some methods which are thread safe, and others
+// which are not. The exported (capitalized-names) methods lock the
+// VpnStates, and so are thread-safe, while the lower-case named
+// methods are not (but may be called when the VpnStates is already
+// locked).
+
 // Allocate an empty VpnStates.
 func newStates() *VpnStates {
 	return &VpnStates{
@@ -56,6 +62,9 @@ func (s *VpnStates) NewVpn() (UniqueId, uint16, error) {
 
 // Delete a vpn. This returns the port number and an error which
 // will either be nil or ErrNoSuchVpn.
+//
+// Note that this does *not* return the vpn's port to the free
+// pool; that must be done separately, via ReleasePort()
 func (s *VpnStates) DeleteVpn(id UniqueId) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
@@ -65,7 +74,6 @@ func (s *VpnStates) DeleteVpn(id UniqueId) (uint16, error) {
 		return 0, ErrNoSuchVpn
 	}
 	delete(s.UsedPorts, id)
-	s.releasePort(portNo)
 	return portNo, nil
 }
 
@@ -81,6 +89,9 @@ func (s *VpnStates) allocPort() (uint16, error) {
 }
 
 // Return a port number to the free pool.
-func (s *VpnStates) releasePort(portNo uint16) {
+func (s *VpnStates) ReleasePort(portNo uint16) {
+	s.Lock()
+	defer s.Unlock()
+
 	s.FreePorts = append(s.FreePorts, portNo)
 }

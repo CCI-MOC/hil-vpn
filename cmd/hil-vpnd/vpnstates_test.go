@@ -46,8 +46,13 @@ func TestVpnStates(t *testing.T) {
 	// Delete a network, and make sure that we get its port back when
 	// we allocate again:
 
-	states.DeleteVpn(vpns[2])
-	_, port, err := states.NewVpn()
+	port, err := states.DeleteVpn(vpns[2])
+	if err != nil {
+		t.Fatal("Error deleting vpn:", err)
+	}
+	states.ReleasePort(port)
+
+	_, port, err = states.NewVpn()
 	if err != nil {
 		t.Fatal("Error allocating vpn ", err)
 	}
