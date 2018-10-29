@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -49,8 +50,7 @@ func TestCreate(t *testing.T) {
 		t.Fatal("Decoding response body:", err)
 	}
 
-	expectedVpnName := fmt.Sprintf("hil_vpn_id_%s_port_%d", results.Id, results.Port)
-	vpn, ok := ops.vpns[expectedVpnName]
+	vpn, ok := ops.vpns[expectedVpnName(results)]
 	if !ok {
 		t.Fatalf("API request returned success, but vpn %s does not exist.", results.Id)
 	}
@@ -67,5 +67,57 @@ func TestCreate(t *testing.T) {
 	}
 	if !vpn.running {
 		t.Fatal("Returned vpn was not started.")
+	}
+}
+
+// Return the name that the api sever should have given to the privops,
+// according to the response. This is an implementation detail; we only
+// need to know about it for testing.
+func expectedVpnName(resp CreateVpnResp) string {
+	return fmt.Sprintf("hil_vpn_id_%s_port_%d", resp.Id, resp.Port)
+}
+
+func TestDelete(t *testing.T) {
+	ops, server := initTestServer()
+	defer server.Close()
+	client := server.Client()
+
+	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
+		{
+			"vlan": 232
+		}
+	`))
+
+	var results CreateVpnResp
+	err = json.NewDecoder(resp.Body).Decode(&results)
+	if err != nil {
+		t.Fatal("Decoding response body:", err)
+	}
+
+	_, ok := ops.vpns[expectedVpnName(results)]
+	if !ok {
+		t.Fatal("VPN not created")
+	}
+
+	deleteUrl, err := url.Parse(server.URL + "/vpns/" + results.Id)
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err = client.Do(&http.Request{
+		Method: "DELETE",
+		URL:    deleteUrl,
+	})
+
+	if err != nil {
+		t.Fatal("Error making http request:", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal("Unexpected status code:", err)
+	}
+
+	_, ok = ops.vpns[expectedVpnName(results)]
+	if ok {
+		t.Fatal("VPN not deleted")
 	}
 }
