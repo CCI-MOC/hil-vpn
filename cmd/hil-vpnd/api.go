@@ -36,8 +36,6 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 				return
 			}
 
-			log.Println("create vpn request:", args)
-
 			// TODO FIXME: verify that vlan is in the allowed range.
 
 			id, port, err := states.NewVpn()
