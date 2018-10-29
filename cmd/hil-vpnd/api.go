@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -54,7 +55,7 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 				return
 			}
 
-			vpnName := fmt.Sprintf("hil_vpn_id_%x_port_%d", id, port)
+			vpnName := makeVpnName(id, port)
 			keyText, err := privops.CreateVPN(vpnName, args.Vlan, port)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -92,10 +93,47 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 
 	r.Methods("DELETE").Path("/vpns/{id}").
 		HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			id := mux.Vars(req)["id"]
+			idStr := mux.Vars(req)["id"]
+			idSlice, err := hex.DecodeString(idStr)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			var id UniqueId
+			if len(idSlice) != len(id[:]) {
+				// id is the wrong length.
+				w.WriteHeader(http.StatusBadRequest)
+			}
+			copy(id[:], idSlice)
 
-			log.Println("delete vpn request:", id)
+			// FIXME: we need to make sure this vpn port is not used before
+			// we're finished deleting the network.
+			port, err := states.DeleteVpn(id)
+			switch err {
+			case nil:
+			case ErrNoSuchVpn:
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			default:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			vpnName := makeVpnName(id, port)
+
+			if err = privops.StopVPN(vpnName); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			if err = privops.DeleteVPN(vpnName); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		})
 
 	return r
+}
+
+// format the vpn name as we will pass it to PrivOps.
+func makeVpnName(id UniqueId, port uint16) string {
+	return fmt.Sprintf("hil_vpn_id_%x_port_%d", id, port)
 }

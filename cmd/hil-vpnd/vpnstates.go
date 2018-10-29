@@ -6,8 +6,13 @@ import (
 	"sync"
 )
 
-// Error indicating that we're out of free ports for openvpn to listen on.
-var ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
+var (
+	// Error indicating that we're out of free ports for openvpn to listen on.
+	ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
+
+	// Error indicating that a specified vpn does not exist.
+	ErrNoSuchVpn = errors.New("There is no such vpn")
+)
 
 // A unique identifier for a vpn.
 type UniqueId [128 / 8]byte
@@ -49,13 +54,19 @@ func (s *VpnStates) NewVpn() (UniqueId, uint16, error) {
 	return id, portNo, err
 }
 
-func (s *VpnStates) DeleteVpn(id UniqueId) {
+// Delete a vpn. This returns the port number and an error which
+// will either be nil or ErrNoSuchVpn.
+func (s *VpnStates) DeleteVpn(id UniqueId) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	portNo := s.UsedPorts[id]
+	portNo, ok := s.UsedPorts[id]
+	if !ok {
+		return 0, ErrNoSuchVpn
+	}
 	delete(s.UsedPorts, id)
 	s.releasePort(portNo)
+	return portNo, nil
 }
 
 // Allocate a new port for a vpn.
