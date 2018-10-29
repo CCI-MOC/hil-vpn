@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// Error indicating that we're out of free ports for openvpn to listen on.
 var ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
 
 // Track the currently existent vpns, available port numbers, etc.
@@ -27,6 +28,8 @@ func newStates() *VpnStates {
 	}
 }
 
+// Allocate a new vpn. Returns a unique id and a port number.
+// May return ErrNoFreePorts if we're out of port numbers to assign.
 func (s *VpnStates) NewVpn() (UniqueId, uint16, error) {
 	s.Lock()
 	defer s.Unlock()
