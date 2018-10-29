@@ -9,7 +9,11 @@ import (
 	"testing"
 )
 
-func TestCreate(t *testing.T) {
+// Create a an httptest.Server, returning the PrivOps it will use.
+//
+// The server's VpnStates will be populated with available ports in the range
+// 5000-5009.
+func initTestServer() (*MockPrivOps, *httptest.Server) {
 	ops := NewMockPrivOps()
 	states := newStates()
 
@@ -18,11 +22,16 @@ func TestCreate(t *testing.T) {
 	}
 
 	handler := makeHandler(ops, states)
-
 	server := httptest.NewServer(handler)
-	defer server.Close()
-	client := server.Client()
 
+	return ops, server
+}
+
+func TestCreate(t *testing.T) {
+	ops, server := initTestServer()
+	defer server.Close()
+
+	client := server.Client()
 	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
 		{
 			"vlan": 232
