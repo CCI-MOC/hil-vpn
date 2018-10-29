@@ -8,6 +8,22 @@ import (
 	"strings"
 )
 
+func init() {
+	// Set the $PATH environment variable to a known-safe value. If the
+	// caller is able to influence our environment, it could set PATH
+	// to something containing an untrustworthy executable named openvpn
+	// or systemctl. Since hil-vpn-privop runs with elevated privileges,
+	// we need to guard against this, so we set PATH to a specific value,
+	// rather than assuming it is sane on startup.
+	err := os.Setenv(
+		"PATH",
+		"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin",
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
 // A regular expression matching legal vpn names.
 var vpnNameRegexp = regexp.MustCompile("^[-_a-zA-Z0-9]+$")
 
