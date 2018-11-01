@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -25,8 +24,6 @@ func init() {
 		panic(err)
 	}
 }
-
-var vpnNameRegexp = regexp.MustCompile("^[-_a-zA-Z0-9]+$")
 
 // Print a help message to stderr and exit with the given status code.
 func usage(exitCode int) {
