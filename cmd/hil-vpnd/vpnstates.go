@@ -9,6 +9,9 @@ import (
 // Error indicating that we're out of free ports for openvpn to listen on.
 var ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
 
+// A unique identifier for a vpn.
+type UniqueId [128 / 8]byte
+
 // Track the currently existent vpns, available port numbers, etc.
 type VpnStates struct {
 	sync.Mutex
