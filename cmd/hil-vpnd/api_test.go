@@ -53,7 +53,7 @@ func TestCreate(t *testing.T) {
 		t.Fatalf("Returned key disagrees with stored key; %v vs %v", results.Key, vpn.key)
 	}
 	if vpn.portNo != results.Port {
-		t.Fatalf("Returned poret disagrees with stored port; %v vs %v", results.Port,
+		t.Fatalf("Returned port disagrees with stored port; %v vs %v", results.Port,
 			vpn.portNo)
 	}
 	if !vpn.running {
