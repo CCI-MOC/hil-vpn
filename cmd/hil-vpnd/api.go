@@ -68,9 +68,7 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Println("Error starting vpn: ", err)
 
-				// try to back out the change. TODO: think about the implications
-				// of what happens if we end up in this state; maybe we should
-				// blacklist the id for future use or something, just to be safe?
+				// try to back out the change.
 				err = privops.DeleteVPN(vpnName)
 				if err != nil {
 					log.Println("Error deleting vpn")
