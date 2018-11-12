@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"github.com/CCI-MOC/hil-vpn/internal/validate"
 )
 
 // Request body for a create-vpn api call.
@@ -36,7 +38,11 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 				return
 			}
 
-			// TODO FIXME: verify that vlan is in the allowed range.
+			if err := validate.CheckVlanNo(args.Vlan); err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(err.Error()))
+				return
+			}
 
 			id, port, err := states.NewVpn()
 			switch err {

@@ -18,3 +18,14 @@ func CheckVpnName(name string) error {
 		"and alphanumeric characters.\n\n",
 		name)
 }
+
+// Check whether `vlanNo` is a valid vlan id. If so, return nil,
+// otherwise return an error.
+func CheckVlanNo(vlanNo uint16) error {
+	if 0 < vlanNo && vlanNo < 4095 {
+		return nil
+	}
+	return fmt.Errorf(
+		"Invalid Vlan ID #%d; Vlan IDs must be in the range [1,4094] (inclusive)",
+		vlanNo)
+}

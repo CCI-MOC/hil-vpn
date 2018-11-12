@@ -28,6 +28,7 @@ func initTestServer() (*MockPrivOps, *httptest.Server) {
 	return ops, server
 }
 
+// Test basic successful vpn creation.
 func TestCreate(t *testing.T) {
 	ops, server := initTestServer()
 	defer server.Close()
@@ -70,6 +71,31 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+// Test expected failures creating vpns
+func TestCreateFail(t *testing.T) {
+	badVlans := []uint16{0, 4095, 4096, 10000}
+
+	ops, server := initTestServer()
+	defer server.Close()
+	client := server.Client()
+	for _, vlanId := range badVlans {
+		reqBody := bytes.NewBufferString(fmt.Sprintf(`{"vlan": %d}`, vlanId))
+		resp, err := client.Post(server.URL+"/vpns/new", "application/json", reqBody)
+		if err != nil {
+			t.Fatal("Making request:", err)
+		}
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Fatalf("Unexpected status code: %d (expected %d)",
+				resp.StatusCode,
+				http.StatusBadRequest)
+		}
+
+		if len(ops.vpns) != 0 {
+			t.Fatalf("A VPN was created; vpns: %v", ops.vpns)
+		}
+	}
+}
+
 // Return the name that the api sever should have given to the privops,
 // according to the response. This is an implementation detail; we only
 // need to know about it for testing.
@@ -77,6 +103,7 @@ func expectedVpnName(resp CreateVpnResp) string {
 	return fmt.Sprintf("hil_vpn_id_%s_port_%d", resp.Id, resp.Port)
 }
 
+// Test deleting vpns
 func TestDelete(t *testing.T) {
 	ops, server := initTestServer()
 	defer server.Close()
