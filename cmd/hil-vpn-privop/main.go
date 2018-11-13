@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/CCI-MOC/hil-vpn/internal/validate"
 )
 
 func init() {
@@ -23,9 +24,6 @@ func init() {
 		panic(err)
 	}
 }
-
-// A regular expression matching legal vpn names.
-var vpnNameRegexp = regexp.MustCompile("^[-_a-zA-Z0-9]+$")
 
 // Print a help message to stderr and exit with the given status code.
 func usage(exitCode int) {
@@ -54,17 +52,12 @@ func checkNumArgs(count int) {
 // Validate that `name` is a legal name for a vpn. If so, return the name,
 // otherwise exit with an error message.
 func checkVpnName(name string) string {
-	if vpnNameRegexp.MatchString(name) {
-		return name
+	err := validate.CheckVpnName(name)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		usage(1)
 	}
-	fmt.Fprintf(
-		os.Stderr,
-		"Invalid vpn name %q; names may only contain dashes, underscores, "+
-			"and alphanumeric characters.\n\n",
-		name,
-	)
-	usage(1)
-	panic("unreachable")
+	return name
 }
 
 func main() {
