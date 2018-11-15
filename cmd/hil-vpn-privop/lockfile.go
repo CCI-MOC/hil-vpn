@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"golang.org/x/sys/unix"
 	"os"
 )
@@ -12,13 +11,6 @@ import (
 const lockFilePath = "/tmp/hil-vpn.lock"
 
 var lockFileRef *os.File
-
-func chkfatal(ctx string, err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s: %v", ctx, err)
-		os.Exit(1)
-	}
-}
 
 func lockFile() {
 	file, err := os.Create(lockFilePath)
