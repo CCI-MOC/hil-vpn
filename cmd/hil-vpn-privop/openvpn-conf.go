@@ -32,10 +32,26 @@ type OpenVpnCfg struct {
 	Port uint16
 }
 
+// Get the path to the file in which to store the openvpn config for the
+// named vpn.
+func getCfgPath(name string) string {
+	return configDir + "/" + name + ".conf"
+}
+
+// Get the path to the file in which to store the key for the named vpn.
+func getKeyPath(name string) string {
+	return configDir + "/hil-vpn-" + name + ".key"
+}
+
+// Get the name of the systemd service for the named vpn.
+func getServiceName(vpnName string) string {
+	return "openvpn-server@" + vpnName
+}
+
 // Save the openvpn config and its static keys to disk.
 func (cfg OpenVpnCfg) Save() error {
-	cfgPath := configDir + "/" + cfg.Name + ".conf"
-	keyPath := configDir + "/hil-vpn-" + cfg.Name + ".key"
+	cfgPath := getCfgPath(cfg.Name)
+	keyPath := getKeyPath(cfg.Name)
 
 	cfgFile, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0600)
 	if err != nil {

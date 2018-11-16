@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -19,12 +21,34 @@ func createCmd(vpnName string, vlanNo, portNo uint16) string {
 
 // Implement the 'start' subcommand.
 func startCmd(vpnName string) {
-	err := exec.Command("systemctl", "enable", "--now", "openvpn-server@"+vpnName).Run()
+	err := exec.Command("systemctl", "enable", "--now", getServiceName(vpnName)).Run()
 	chkfatal("Starting & enabling vpn", err)
 }
 
 // Implement the 'stop' subcommand.
 func stopCmd(vpnName string) {
-	err := exec.Command("systemctl", "disable", "--now", "openvpn-server@"+vpnName).Run()
+	err := exec.Command("systemctl", "disable", "--now", getServiceName(vpnName)).Run()
 	chkfatal("Stopping & disabling vpn", err)
+}
+
+// Implement the 'delete' subcommand.
+func deleteCmd(vpnName string) {
+	err := exec.Command("systemctl", "status", getServiceName(vpnName)).Run()
+	if err == nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"Error: cannot delete vpn: %v; it is still running.",
+			vpnName,
+		)
+		os.Exit(1)
+	}
+	if _, ok := err.(*exec.ExitError); !ok {
+		chkfatal("Checking vpn status:", err)
+	}
+
+	// A failing exit status indicates that the service was not running; go
+	// ahead and delete the config & key:
+
+	chkfatal("Deleting vpn key file", os.Remove(getKeyPath(vpnName)))
+	chkfatal("Deleting vpn config file", os.Remove(getCfgPath(vpnName)))
 }

@@ -123,8 +123,8 @@ func main() {
 		stopCmd(vpnName)
 	case "delete":
 		checkNumArgs(1)
-		checkVpnName(os.Args[2])
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		vpnName := checkVpnName(os.Args[2])
+		deleteCmd(vpnName)
 	case "list":
 		checkNumArgs(0)
 		fmt.Fprintln(os.Stderr, "Unimplemented")
