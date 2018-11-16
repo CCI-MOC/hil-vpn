@@ -60,6 +60,21 @@ func checkVpnName(name string) string {
 	return name
 }
 
+// Validate that `vlanStr` is a legal vlan id. If not, exit with an error
+// message, otherwise parse the vlan id and return it.
+func checkVlan(vlanStr string) uint16 {
+	vlanNo, err := strconv.ParseInt(os.Args[3], 10, 12)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing vlan number: %v\n\n", err)
+		usage(1)
+	}
+	if err = validate.CheckVlanNo(uint16(vlanNo)); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		usage(1)
+	}
+	return uint16(vlanNo)
+}
+
 func main() {
 	// Make sure only one hil-vpn-privop command is running at a time:
 	lockFile()
@@ -72,11 +87,7 @@ func main() {
 	case "create":
 		checkNumArgs(3)
 		vpnName := checkVpnName(os.Args[2])
-		vlanNo, err := strconv.ParseInt(os.Args[3], 10, 12)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing vlan number: %v\n\n", err)
-			usage(1)
-		}
+		vlanNo := checkVlan(os.Args[3])
 		portNo, err := strconv.ParseInt(os.Args[4], 10, 16)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error parsing port number: %v\n\n", err)
