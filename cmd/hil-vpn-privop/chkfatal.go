@@ -7,7 +7,7 @@ import (
 
 func chkfatal(ctx string, err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s: %v", ctx, err)
+		fmt.Fprintf(os.Stderr, "Error: %s: %v\n", ctx, err)
 		os.Exit(1)
 	}
 }
