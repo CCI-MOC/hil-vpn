@@ -6,8 +6,13 @@ import (
 	"sync"
 )
 
-// Error indicating that we're out of free ports for openvpn to listen on.
-var ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
+var (
+	// Error indicating that we're out of free ports for openvpn to listen on.
+	ErrNoFreePorts = errors.New("There are no free OpenVPN ports")
+
+	// Error indicating that a specified vpn does not exist.
+	ErrNoSuchVpn = errors.New("There is no such vpn")
+)
 
 // A unique identifier for a vpn.
 type UniqueId [128 / 8]byte
@@ -22,6 +27,12 @@ type VpnStates struct {
 	// A list of free ports, which may be used with new vpns.
 	FreePorts []uint16
 }
+
+// NOTE: VpnStates has some methods which are thread safe, and others
+// which are not. The exported (capitalized-names) methods lock the
+// VpnStates, and so are thread-safe, while the lower-case named
+// methods are not (but may be called when the VpnStates is already
+// locked).
 
 // Allocate an empty VpnStates.
 func newStates() *VpnStates {
@@ -49,13 +60,21 @@ func (s *VpnStates) NewVpn() (UniqueId, uint16, error) {
 	return id, portNo, err
 }
 
-func (s *VpnStates) DeleteVpn(id UniqueId) {
+// Delete a vpn. This returns the port number and an error which
+// will either be nil or ErrNoSuchVpn.
+//
+// Note that this does *not* return the vpn's port to the free
+// pool; that must be done separately, via ReleasePort()
+func (s *VpnStates) DeleteVpn(id UniqueId) (uint16, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	portNo := s.UsedPorts[id]
+	portNo, ok := s.UsedPorts[id]
+	if !ok {
+		return 0, ErrNoSuchVpn
+	}
 	delete(s.UsedPorts, id)
-	s.releasePort(portNo)
+	return portNo, nil
 }
 
 // Allocate a new port for a vpn.
@@ -70,6 +89,9 @@ func (s *VpnStates) allocPort() (uint16, error) {
 }
 
 // Return a port number to the free pool.
-func (s *VpnStates) releasePort(portNo uint16) {
+func (s *VpnStates) ReleasePort(portNo uint16) {
+	s.Lock()
+	defer s.Unlock()
+
 	s.FreePorts = append(s.FreePorts, portNo)
 }
