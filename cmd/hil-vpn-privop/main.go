@@ -75,6 +75,28 @@ func checkVlan(vlanStr string) uint16 {
 	return uint16(vlanNo)
 }
 
+// Validate that `portStr` is an acceptable port number. If not, exit with
+// an error message, otherwise parse the port number and return it.
+//
+// The critera for acceptable port numbers is that they must be ports that
+// a normal user could listen on; this avoids being able to use hil-vpn-privop
+// to affect privileged ports.
+func checkPort(portStr string) uint16 {
+	portNo, err := strconv.ParseInt(os.Args[4], 10, 16)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing port number: %v\n\n", err)
+		usage(1)
+	}
+	if portNo < 1024 {
+		fmt.Fprintln(os.Stderr,
+			"Unacceptable port number: ",
+			portNo,
+			"; only non-privileged ports (>= 1024) may be used.")
+		usage(1)
+	}
+	return uint16(portNo)
+}
+
 func main() {
 	// Make sure only one hil-vpn-privop command is running at a time:
 	lockFile()
@@ -88,12 +110,8 @@ func main() {
 		checkNumArgs(3)
 		vpnName := checkVpnName(os.Args[2])
 		vlanNo := checkVlan(os.Args[3])
-		portNo, err := strconv.ParseInt(os.Args[4], 10, 16)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing port number: %v\n\n", err)
-			usage(1)
-		}
-		fmt.Print(createCmd(vpnName, uint16(vlanNo), uint16(portNo)))
+		portNo := checkPort(os.Args[4])
+		fmt.Print(createCmd(vpnName, vlanNo, portNo))
 		fmt.Fprintln(os.Stderr, "TODO: actually set up the VPN.")
 	case "start":
 		checkNumArgs(1)
