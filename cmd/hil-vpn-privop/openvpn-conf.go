@@ -84,8 +84,12 @@ func (cfg OpenVpnCfg) Save() error {
 
 // Return a cryptographically-random 12-character base64(url) encoded string.
 // This is to do collision avoidance given the 15-character limit on network
-// interface names. We still prefix interface names with tap for a modicum
-// of readability. See also issue #14.
+// interface names. See also issue #14. We still prefix interface names with
+// tap for two reasons:
+//
+// 1. A modicum of readability.
+// 2. So that openvpn can infer the type of device. We could also deal with
+//    this by setting `dev-type tap` in the config file.
 //
 // Note that 12 bytes of base64 (which is about 9 bytes decoded) is not in
 // general a reasonable amount of entropy for cryptographic purposes. We'll
