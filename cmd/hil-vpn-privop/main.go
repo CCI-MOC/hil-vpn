@@ -115,16 +115,16 @@ func main() {
 		fmt.Fprintln(os.Stderr, "TODO: actually set up the VPN.")
 	case "start":
 		checkNumArgs(1)
-		checkVpnName(os.Args[2])
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		vpnName := checkVpnName(os.Args[2])
+		startCmd(vpnName)
 	case "stop":
 		checkNumArgs(1)
-		checkVpnName(os.Args[2])
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		vpnName := checkVpnName(os.Args[2])
+		stopCmd(vpnName)
 	case "delete":
 		checkNumArgs(1)
-		checkVpnName(os.Args[2])
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		vpnName := checkVpnName(os.Args[2])
+		deleteCmd(vpnName)
 	case "list":
 		checkNumArgs(0)
 		fmt.Fprintln(os.Stderr, "Unimplemented")
