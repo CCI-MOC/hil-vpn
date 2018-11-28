@@ -8,7 +8,7 @@ import (
 
 // The actual functionality of each of the commands; the function
 // <command>Cmd implements the named command. The caller is responsible
-// for validating the argumetns. If an an error occurs, the program will
+// for validating the arguments. If an an error occurs, the program will
 // exit with a failing status code.
 
 // Implement the 'create' subcommand.
