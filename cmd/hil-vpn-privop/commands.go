@@ -16,7 +16,7 @@ var keyFileRe = regexp.MustCompile("^hil-vpn-([-_a-zA-Z0-9]+).key$")
 
 // Implement the 'create' subcommand.
 func createCmd(vpnName string, vlanNo, portNo uint16) string {
-	cfg, err := NewOpenVpnConfig(vpnName, portNo)
+	cfg, err := NewOpenVpnConfig(vpnName, vlanNo, portNo)
 	chkfatal("Generating openvpn config:", err)
 	chkfatal("Saving openvpn config:", cfg.Save())
 	return cfg.Key
