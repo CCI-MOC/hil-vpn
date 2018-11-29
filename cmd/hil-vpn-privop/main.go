@@ -127,7 +127,7 @@ func main() {
 		deleteCmd(vpnName)
 	case "list":
 		checkNumArgs(0)
-		fmt.Fprintln(os.Stderr, "Unimplemented")
+		listCmd()
 	case "-h", "--help", "help":
 		usage(0)
 	default:
