@@ -23,6 +23,7 @@ Vagrant.configure("2") do |config|
     yum install -y \
       openvpn \
       bridge-utils \
-      vconfig
+      vconfig \
+      net-tools
   SHELL
 end
