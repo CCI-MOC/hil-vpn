@@ -112,7 +112,6 @@ func main() {
 		vlanNo := checkVlan(os.Args[3])
 		portNo := checkPort(os.Args[4])
 		fmt.Print(createCmd(vpnName, vlanNo, portNo))
-		fmt.Fprintln(os.Stderr, "TODO: actually set up the VPN.")
 	case "start":
 		checkNumArgs(1)
 		vpnName := checkVpnName(os.Args[2])
