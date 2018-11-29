@@ -24,9 +24,7 @@ cipher AES-256-CBC
 
 lport {{ .Port }}
 
-# FIXME: this needs to be an absolute path; need to decide where to actually put
-# the script.
-up "hil-vpn-hook-up {{ .Vlan }}"
+up "/usr/local/libexec/hil-vpn-hook-up {{ .Vlan }}"
 # Needed to permit the above to actually run:
 script-security 2
 
