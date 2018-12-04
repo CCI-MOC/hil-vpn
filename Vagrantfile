@@ -24,6 +24,15 @@ Vagrant.configure("2") do |config|
       openvpn \
       bridge-utils \
       vconfig \
-      net-tools
+      net-tools \
+      policycoreutils-python
+
+    # Allow openvpn to listen on the ports we've opened up:
+    semanage port -a -t openvpn_port_t -p udp 6000-6010
+
+    # Set up some symlinks, so that commands are where they
+    # are expected:
+    cd /usr/bin; ln -s /vagrant/cmd/hil-vpn-privop/hil-vpn-privop
+    cd /usr/local/libexec; ln -s /vagrant/openvpn-hooks/hil-vpn-hook-up
   SHELL
 end
