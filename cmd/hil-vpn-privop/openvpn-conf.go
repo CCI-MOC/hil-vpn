@@ -24,6 +24,10 @@ cipher AES-256-CBC
 
 lport {{ .Port }}
 
+up "/usr/local/libexec/hil-vpn-hook-up {{ .Vlan }}"
+# Needed to permit the above to actually run:
+script-security 2
+
 user nobody
 group nobody
 `))
@@ -32,6 +36,7 @@ type OpenVpnCfg struct {
 	Name string
 	Key  string
 	Port uint16
+	Vlan uint16
 }
 
 // Get the path to the file in which to store the openvpn config for the
@@ -109,7 +114,7 @@ func (cfg OpenVpnCfg) NewInterfaceName() string {
 }
 
 // Generate a new openvpn config (including a static key).
-func NewOpenVpnConfig(name string, port uint16) (*OpenVpnCfg, error) {
+func NewOpenVpnConfig(name string, vlan, port uint16) (*OpenVpnCfg, error) {
 	cmd := exec.Command("openvpn", "--genkey", "--secret", "/dev/fd/1")
 	output, err := cmd.Output()
 	if err != nil {
@@ -118,6 +123,7 @@ func NewOpenVpnConfig(name string, port uint16) (*OpenVpnCfg, error) {
 	return &OpenVpnCfg{
 		Name: name,
 		Port: port,
+		Vlan: vlan,
 		Key:  string(output),
 	}, nil
 }

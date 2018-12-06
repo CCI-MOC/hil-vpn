@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+vlan="${1?}"
+
+/sbin/brctl addif "br-vlan${vlan?}" "${dev?}"
