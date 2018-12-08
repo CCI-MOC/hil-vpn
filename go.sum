@@ -1,3 +1,7 @@
+github.com/CCI-MOC/obmd v0.0.0-20181108180920-2d628d0e8fc1 h1:Y28erVFc2hp4klQ/0mXEZPeW+XdW7ilnuFvSUAZvzRI=
+github.com/CCI-MOC/obmd v0.0.0-20181108180920-2d628d0e8fc1/go.mod h1:HZekg8MxEWCjMMGnKf4tAaX5j5xI9EwUCsc26Tu/YlY=
+github.com/CCI-MOC/obmd v0.0.0-20181207223216-8ace7dc47456 h1:+0cGBCehWsOzSQsUD3kpoq6iieZ/UgYD92fouSbpUBE=
+github.com/CCI-MOC/obmd v0.0.0-20181207223216-8ace7dc47456/go.mod h1:K+fcc2O/SNAaLWfAp7zVpCrEYot0pqFYGzbL0WRBSOI=
 github.com/caarlos0/env v3.5.0+incompatible h1:Yy0UN8o9Wtr/jGHZDpCBLpNrzcFLLM2yixi/rBrKyJs=
 github.com/caarlos0/env v3.5.0+incompatible/go.mod h1:tdCsowwCzMLdkqRYDlHpZCp2UooDD3MspDBjZ2AD02Y=
 github.com/gorilla/mux v1.6.2 h1:Pgr17XVTNXAk3q/r4CpKzC5xBM/qW1uVLV+IhRZpIIk=
