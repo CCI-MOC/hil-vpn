@@ -4,6 +4,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/CCI-MOC/hil-vpn/internal/staticconfig"
 )
 
 // The PrivOps interface captures the privileged operations that hil-vpnd
@@ -21,10 +23,16 @@ type PrivOps interface {
 // An implementation of PrivOps that calls the 'hil-vpn-privop' command.
 type PrivOpsCmd struct{}
 
+func privOpCmd(args ...string) *exec.Cmd {
+	sudoArgs := append(
+		[]string{staticconfig.Libexecdir + "/hil-vpn-privop"},
+		args...,
+	)
+	return exec.Command("sudo", sudoArgs...)
+}
+
 func (PrivOpsCmd) CreateVPN(name string, vlanNo uint16, portNo uint16) (string, error) {
-	out, err := exec.Command(
-		"sudo",
-		"hil-vpn-privop",
+	out, err := privOpCmd(
 		"create",
 		name,
 		strconv.Itoa(int(vlanNo)),
@@ -34,19 +42,19 @@ func (PrivOpsCmd) CreateVPN(name string, vlanNo uint16, portNo uint16) (string, 
 }
 
 func (PrivOpsCmd) StartVPN(name string) error {
-	return exec.Command("sudo", "hil-vpn-privop", "start", name).Run()
+	return privOpCmd("start", name).Run()
 }
 
 func (PrivOpsCmd) StopVPN(name string) error {
-	return exec.Command("sudo", "hil-vpn-privop", "stop", name).Run()
+	return privOpCmd("stop", name).Run()
 }
 
 func (PrivOpsCmd) DeleteVPN(name string) error {
-	return exec.Command("sudo", "hil-vpn-privop", "delete", name).Run()
+	return privOpCmd("delete", name).Run()
 }
 
 func (PrivOpsCmd) ListVPNs() ([]string, error) {
-	out, err := exec.Command("sudo", "hil-vpn-privop", "list").Output()
+	out, err := privOpCmd("list").Output()
 	if err != nil {
 		return nil, err
 	}
