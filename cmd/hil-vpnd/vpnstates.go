@@ -34,12 +34,17 @@ type VpnStates struct {
 // methods are not (but may be called when the VpnStates is already
 // locked).
 
-// Allocate an empty VpnStates.
-func newStates() *VpnStates {
-	return &VpnStates{
+// Allocate a fresh VpnStates, with `FreePorts` generated based on
+// the config.
+func newStates(cfg config) *VpnStates {
+	ret := &VpnStates{
 		UsedPorts: map[UniqueId]uint16{},
 		FreePorts: []uint16{},
 	}
+	for i := cfg.MinPort; i <= cfg.MaxPort; i++ {
+		ret.FreePorts = append(ret.FreePorts, uint16(i))
+	}
+	return ret
 }
 
 // Allocate a new vpn. Returns a unique id and a port number.

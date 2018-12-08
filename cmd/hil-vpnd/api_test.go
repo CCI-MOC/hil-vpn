@@ -16,11 +16,10 @@ import (
 // 5000-5009.
 func initTestServer() (*MockPrivOps, *httptest.Server) {
 	ops := NewMockPrivOps()
-	states := newStates()
-
-	for i := 0; i < 10; i++ {
-		states.FreePorts = append(states.FreePorts, uint16(5000+i))
-	}
+	states := newStates(config{
+		MinPort: 5000,
+		MaxPort: 5009,
+	})
 
 	handler := makeHandler(ops, states)
 	server := httptest.NewServer(handler)
