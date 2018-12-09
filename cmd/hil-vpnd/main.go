@@ -43,7 +43,7 @@ func getConfig() config {
 func main() {
 	cfg := getConfig()
 	// TODO: query the state of existent vpns and populate this accordingly:
-	vpnStates := newStates(cfg)
+	vpnStates := newStates(cfg, []string{})
 
 	http.Handle("/", makeHandler(PrivOpsCmd{}, vpnStates))
 	panic(httpserver.Run(&cfg.ServerConfig, nil))

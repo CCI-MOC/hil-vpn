@@ -8,7 +8,7 @@ func TestVpnStates(t *testing.T) {
 	states := newStates(config{
 		MinPort: 4000,
 		MaxPort: 4003,
-	})
+	}, []string{})
 
 	vpns := []UniqueId{}
 

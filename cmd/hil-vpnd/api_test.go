@@ -19,7 +19,7 @@ func initTestServer() (*MockPrivOps, *httptest.Server) {
 	states := newStates(config{
 		MinPort: 5000,
 		MaxPort: 5009,
-	})
+	}, []string{})
 
 	handler := makeHandler(ops, states)
 	server := httptest.NewServer(handler)
