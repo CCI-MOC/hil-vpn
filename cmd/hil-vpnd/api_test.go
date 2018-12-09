@@ -16,13 +16,15 @@ import (
 // 5000-5009.
 func initTestServer() (*MockPrivOps, *httptest.Server) {
 	ops := NewMockPrivOps()
-	states := newStates(config{
+	daemon, err := newDaemon(config{
 		MinPort: 5000,
 		MaxPort: 5009,
-	}, []string{})
+	}, ops)
+	if err != nil {
+		panic(err)
+	}
 
-	handler := makeHandler(ops, states)
-	server := httptest.NewServer(handler)
+	server := httptest.NewServer(daemon.handler)
 
 	return ops, server
 }
