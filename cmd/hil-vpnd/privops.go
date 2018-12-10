@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -28,7 +29,12 @@ func privOpCmd(args ...string) *exec.Cmd {
 		[]string{staticconfig.Libexecdir + "/hil-vpn-privop"},
 		args...,
 	)
-	return exec.Command("sudo", sudoArgs...)
+	cmd := exec.Command("sudo", sudoArgs...)
+
+	// Pass through stderr; useful for debugging.
+	cmd.Stderr = os.Stderr
+
+	return cmd
 }
 
 func (PrivOpsCmd) CreateVPN(name string, vlanNo uint16, portNo uint16) (string, error) {
