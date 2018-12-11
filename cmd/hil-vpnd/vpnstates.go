@@ -35,7 +35,7 @@ type VpnStates struct {
 // locked).
 
 // Allocate a fresh VpnStates, with `FreePorts` generated based on
-// the config. The `vpnNames` argument should the output of
+// the config. The `vpnNames` argument should be the output of
 // PrivOps.ListVPNs.
 func newStates(cfg config, vpnNames []string) *VpnStates {
 	ret := &VpnStates{
