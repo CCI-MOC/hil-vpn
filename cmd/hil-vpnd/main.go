@@ -7,11 +7,13 @@ import (
 	"github.com/caarlos0/env"
 
 	"github.com/CCI-MOC/obmd/httpserver"
+	"github.com/CCI-MOC/obmd/token"
 )
 
 type config struct {
-	MinPort      int `env:"MIN_VPN_PORT,required"`
-	MaxPort      int `env:"MAX_VPN_PORT,required"`
+	MinPort      int         `env:"MIN_VPN_PORT,required"`
+	MaxPort      int         `env:"MAX_VPN_PORT,required"`
+	AdminToken   token.Token `env:"ADMIN_TOKEN,required"`
 	ServerConfig httpserver.Config
 }
 

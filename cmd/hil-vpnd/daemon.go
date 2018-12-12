@@ -21,7 +21,7 @@ func newDaemon(cfg config, privops PrivOps) (*Daemon, error) {
 	vpnStates := newStates(cfg, vpnNames)
 
 	return &Daemon{
-		handler:   makeHandler(privops, vpnStates),
+		handler:   makeHandler(cfg.AdminToken, privops, vpnStates),
 		privops:   privops,
 		vpnStates: vpnStates,
 	}, nil

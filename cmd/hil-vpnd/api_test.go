@@ -4,12 +4,59 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"testing"
+
+	"github.com/CCI-MOC/obmd/token"
 )
+
+var adminToken = token.Token{
+	0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+	0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+}
+
+// helper function for making authenticted requests; like client.Do except
+// that it sets the appropriate authentication headers.
+func doReq(client *http.Client, req *http.Request) (*http.Response, error) {
+	password, err := adminToken.MarshalText()
+	if err != nil {
+		panic(err)
+	}
+	// Make sure the map isn't nil:
+	if req.Header == nil {
+		req.Header = http.Header{}
+	}
+	req.SetBasicAuth("admin", string(password))
+	return client.Do(req)
+}
+
+// Helper for making authenticated post requests; like client.Post except
+// that it sets the appropriate authentication headers.
+func postReq(client *http.Client, urlStr, contentType string, body io.Reader) (*http.Response, error) {
+	// If the body doesn't have a Close() method, give it a nop one:
+	bodyCloser, ok := body.(io.ReadCloser)
+	if !ok {
+		bodyCloser = ioutil.NopCloser(body)
+	}
+
+	URL, err := url.Parse(urlStr)
+	if err != nil {
+		panic(err)
+	}
+	return doReq(client, &http.Request{
+		Method: "POST",
+		URL:    URL,
+		Header: http.Header{
+			"Content-Type": {contentType},
+		},
+		Body: bodyCloser,
+	})
+}
 
 // Create a an httptest.Server, returning the PrivOps it will use.
 //
@@ -17,8 +64,9 @@ import (
 // 5000-5009.
 func initTestServer(ops *MockPrivOps) *httptest.Server {
 	daemon, err := newDaemon(config{
-		MinPort: 5000,
-		MaxPort: 5009,
+		AdminToken: adminToken,
+		MinPort:    5000,
+		MaxPort:    5009,
 	}, ops)
 	if err != nil {
 		panic(err)
@@ -41,7 +89,7 @@ func TestCreate(t *testing.T) {
 func successfullyCreateVpn(t *testing.T, vlanNo uint16, ops *MockPrivOps, server *httptest.Server) {
 	client := server.Client()
 	vlanStr := strconv.Itoa(int(vlanNo))
-	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
+	resp, err := postReq(client, server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
 		{
 			"vlan": `+vlanStr+`
 		}
@@ -90,7 +138,7 @@ func TestCreateRestore(t *testing.T) {
 	server = initTestServer(ops)
 	defer server.Close()
 	client := server.Client()
-	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
+	resp, err := postReq(client, server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
 		{
 			"vlan": 300
 		}
@@ -130,7 +178,7 @@ func TestCreateFail(t *testing.T) {
 	client := server.Client()
 	for _, vlanId := range badVlans {
 		reqBody := bytes.NewBufferString(fmt.Sprintf(`{"vlan": %d}`, vlanId))
-		resp, err := client.Post(server.URL+"/vpns/new", "application/json", reqBody)
+		resp, err := postReq(client, server.URL+"/vpns/new", "application/json", reqBody)
 		if err != nil {
 			t.Fatal("Making request:", err)
 		}
@@ -160,7 +208,7 @@ func TestDelete(t *testing.T) {
 	defer server.Close()
 	client := server.Client()
 
-	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
+	resp, err := postReq(client, server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
 		{
 			"vlan": 232
 		}
@@ -182,7 +230,7 @@ func TestDelete(t *testing.T) {
 		panic(err)
 	}
 
-	resp, err = client.Do(&http.Request{
+	resp, err = doReq(client, &http.Request{
 		Method: "DELETE",
 		URL:    deleteUrl,
 	})

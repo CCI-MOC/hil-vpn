@@ -10,6 +10,9 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/CCI-MOC/hil-vpn/internal/validate"
+
+	"github.com/CCI-MOC/obmd/adminauth"
+	"github.com/CCI-MOC/obmd/token"
 )
 
 // Request body for a create-vpn api call.
@@ -25,10 +28,11 @@ type CreateVpnResp struct {
 }
 
 // Create an http.Handler implementing the REST API from the spec.
-func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
+func makeHandler(adminToken token.Token, privops PrivOps, states *VpnStates) http.Handler {
 	r := mux.NewRouter()
+	adminR := adminauth.AdminRouter(adminToken, r)
 
-	r.Methods("POST").Path("/vpns/new").
+	adminR.Methods("POST").Path("/vpns/new").
 		HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			var args CreateVpnReq
 			err := json.NewDecoder(req.Body).Decode(&args)
@@ -100,7 +104,7 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 			}
 		})
 
-	r.Methods("DELETE").Path("/vpns/{id}").
+	adminR.Methods("DELETE").Path("/vpns/{id}").
 		HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			idStr := mux.Vars(req)["id"]
 			idSlice, err := hex.DecodeString(idStr)
