@@ -5,6 +5,10 @@ go:
   - "1.11"
   - tip
 go_import_path: github.com/CCI-MOC/hil-vpn
+install:
+  # We need to set this explicitly since we have a Makefile; see:
+  # https://docs.travis-ci.com/user/languages/go/#dependency-management
+  - go get -t -v ./...
 matrix:
   allow_failures:
     - go: tip

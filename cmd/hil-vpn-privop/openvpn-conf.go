@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"text/template"
+
+	"github.com/CCI-MOC/hil-vpn/internal/staticconfig"
 )
 
 const configDir = "/etc/openvpn/server"
@@ -24,7 +26,7 @@ cipher AES-256-CBC
 
 lport {{ .Port }}
 
-up "/usr/local/libexec/hil-vpn-hook-up {{ .Vlan }}"
+up "{{ .Libexecdir }}/hil-vpn-hook-up {{ .Vlan }}"
 # Needed to permit the above to actually run:
 script-security 2
 
@@ -37,6 +39,11 @@ type OpenVpnCfg struct {
 	Key  string
 	Port uint16
 	Vlan uint16
+}
+
+type templateArg struct {
+	OpenVpnCfg
+	Libexecdir string
 }
 
 // Get the path to the file in which to store the openvpn config for the
@@ -80,7 +87,11 @@ func (cfg OpenVpnCfg) Save() error {
 			os.Remove(keyPath)
 		}
 	}()
-	if err = openVpnCfgTpl.Execute(cfgFile, cfg); err != nil {
+	arg := templateArg{
+		OpenVpnCfg: cfg,
+		Libexecdir: staticconfig.Libexecdir,
+	}
+	if err = openVpnCfgTpl.Execute(cfgFile, arg); err != nil {
 		return err
 	}
 	_, err = keyFile.Write([]byte(cfg.Key))
