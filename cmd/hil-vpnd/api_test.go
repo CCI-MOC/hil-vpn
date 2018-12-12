@@ -77,6 +77,26 @@ func initTestServer(ops *MockPrivOps) *httptest.Server {
 	return server
 }
 
+// Test that we reject unathenticated API calls.
+func TestNoAdminDeny(t *testing.T) {
+	ops := NewMockPrivOps()
+	server := initTestServer(ops)
+	defer server.Close()
+	client := server.Client()
+
+	resp, err := client.Post(server.URL+"/vpns/new", "application/json", bytes.NewBufferString(`
+		{
+			"vlan": 400
+		}
+	`))
+	if err != nil {
+		t.Fatal("Making request:", err)
+	}
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("Unexpected status code: %d", resp.StatusCode)
+	}
+}
+
 // Test basic successful vpn creation.
 func TestCreate(t *testing.T) {
 	ops := NewMockPrivOps()
