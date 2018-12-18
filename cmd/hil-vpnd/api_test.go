@@ -58,7 +58,7 @@ func postReq(client *http.Client, urlStr, contentType string, body io.Reader) (*
 	})
 }
 
-// Create a an httptest.Server, returning the PrivOps it will use.
+// Create an httptest.Server, returning the PrivOps it will use.
 //
 // The server's VpnStates will be populated with available ports in the range
 // 5000-5009.
@@ -77,7 +77,7 @@ func initTestServer(ops *MockPrivOps) *httptest.Server {
 	return server
 }
 
-// Test that we reject unathenticated API calls.
+// Test that we reject unauthenticated API calls.
 func TestNoAdminDeny(t *testing.T) {
 	ops := NewMockPrivOps()
 	server := initTestServer(ops)
