@@ -146,8 +146,3 @@ func makeHandler(privops PrivOps, states *VpnStates) http.Handler {
 
 	return r
 }
-
-// format the vpn name as we will pass it to PrivOps.
-func makeVpnName(id UniqueId, port uint16) string {
-	return fmt.Sprintf("hil_vpn_id_%x_port_%d", id, port)
-}

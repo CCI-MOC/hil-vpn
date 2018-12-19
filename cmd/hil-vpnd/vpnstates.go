@@ -34,12 +34,33 @@ type VpnStates struct {
 // methods are not (but may be called when the VpnStates is already
 // locked).
 
-// Allocate an empty VpnStates.
-func newStates() *VpnStates {
-	return &VpnStates{
+// Allocate a fresh VpnStates, with `FreePorts` generated based on
+// the config. The `vpnNames` argument should be the output of
+// PrivOps.ListVPNs.
+func newStates(cfg config, vpnNames []string) *VpnStates {
+	ret := &VpnStates{
 		UsedPorts: map[UniqueId]uint16{},
 		FreePorts: []uint16{},
 	}
+	usedPorts := make(map[uint16]struct{})
+	for _, name := range vpnNames {
+		id, port, err := parseVpnName(name)
+		if err != nil {
+			// skip it; perhaps the local sysadmin created an
+			// openvpn config unrelated to hil-vpn.
+			continue
+		}
+		ret.UsedPorts[id] = port
+		usedPorts[port] = struct{}{}
+	}
+	for i := cfg.MinPort; i <= cfg.MaxPort; i++ {
+		if _, ok := usedPorts[uint16(i)]; ok {
+			// Port is in use; leave it out.
+			continue
+		}
+		ret.FreePorts = append(ret.FreePorts, uint16(i))
+	}
+	return ret
 }
 
 // Allocate a new vpn. Returns a unique id and a port number.

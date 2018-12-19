@@ -5,13 +5,10 @@ import (
 )
 
 func TestVpnStates(t *testing.T) {
-	states := newStates()
-	states.FreePorts = []uint16{
-		4000,
-		4001,
-		4002,
-		4003,
-	}
+	states := newStates(config{
+		MinPort: 4000,
+		MaxPort: 4003,
+	}, []string{})
 
 	vpns := []UniqueId{}
 
