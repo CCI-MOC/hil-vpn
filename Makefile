@@ -19,6 +19,12 @@
 # 2. hil-vpn doesn't actually use most of these, and probably never will,
 #    but we specify the whole set for the sake of making this orthogonal
 #    to the rest of the code.
+#
+# When using the `install` target, you may also supply a DESTDIR variable
+# to install somewhere other than the actual root filesystem; this is useful
+# for packaging:
+#
+#    make PREFIX=/usr SYSCONFDIR=/etc DESTDIR=... install
 PREFIX         ?= /usr/local
 EXEC_PREFIX    ?= $(PREFIX)
 BINDIR         ?= $(EXEC_PREFIX)/bin
@@ -80,8 +86,8 @@ all:
 	@echo BUILD hil-vpn-privop
 	@cd cmd/hil-vpn-privop ; go build -ldflags "$(GO_LDFLAGS)"
 install:
-	install -Dm755 ./cmd/hil-vpnd/hil-vpnd             $(SBINDIR)/
-	install -Dm755 ./cmd/hil-vpn-privop/hil-vpn-privop $(LIBEXECDIR)/
-	install -Dm755 ./openvpn-hooks/hil-vpn-hook-up     $(LIBEXECDIR)/
+	install -Dm755 ./cmd/hil-vpnd/hil-vpnd             -t $(DESTDIR)$(SBINDIR)/
+	install -Dm755 ./cmd/hil-vpn-privop/hil-vpn-privop -t $(DESTDIR)$(LIBEXECDIR)/
+	install -Dm755 ./openvpn-hooks/hil-vpn-hook-up     -t $(DESTDIR)$(LIBEXECDIR)/
 
 .PHONY: all install
